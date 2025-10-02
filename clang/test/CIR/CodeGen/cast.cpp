@@ -131,3 +131,34 @@ void bitcast() {
 
 // LLVM: %[[D_VEC:.*]] = load <2 x double>, ptr {{.*}}, align 16
 // LLVM: %[[I_VEC:.*]] = bitcast <2 x double> %[[D_VEC]] to <4 x i32>
+
+void f(long int start) {
+  void *p = (void*)start;
+}
+// CIR: cir.cast int_to_ptr {{.*}} : !s64i -> !cir.ptr<!void>
+// LLVM: inttoptr {{.*}} to ptr
+
+struct A { int x; };
+
+void int_cast(long ptr) {
+  ((A *)ptr)->x = 0;
+}
+// CIR: cir.cast int_to_ptr {{.*}} : !u64i -> !cir.ptr<!rec_A>
+// LLVM: inttoptr {{.*}} to %struct.A*
+
+void null_cast(long) {
+  *(int *)0 = 0;
+  ((A *)0)->x = 0;
+}
+// CIR: #cir.ptr<null> : !cir.ptr<!s32i>
+// CIR: #cir.ptr<null> : !cir.ptr<!rec_A>
+
+long roundtrip(void *p) {
+  auto i = (unsigned long)p;
+  auto q = (void*)i;
+  return (long)(q != nullptr);
+}
+// CIR: cir.cast ptr_to_int {{.*}} : !cir.ptr<!void> -> !u64i
+// CIR: cir.cast int_to_ptr {{.*}} : !u64i -> !cir.ptr<!void>
+// LLVM: ptrtoint ptr {{.*}} to i64
+// LLVM: inttoptr i64 {{.*}} to ptr
