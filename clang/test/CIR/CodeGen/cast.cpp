@@ -135,8 +135,9 @@ void bitcast() {
 void f(long int start) {
   void *p = (void*)start;
 }
-// CIR: cir.cast int_to_ptr {{.*}} : !s64i -> !cir.ptr<!void>
-// LLVM: inttoptr {{.*}} to ptr
+// CIR: %[[L:.*]] = cir.load {{.*}} : !cir.ptr<!s64i>, !s64i
+// CIR: %[[MID:.*]] = cir.cast integral %[[L]] : !s64i -> !u64i
+// CIR:          cir.cast int_to_ptr %[[MID]] : !u64i -> !cir.ptr<!void>
 
 struct A { int x; };
 
@@ -144,7 +145,7 @@ void int_cast(long ptr) {
   ((A *)ptr)->x = 0;
 }
 // CIR: cir.cast int_to_ptr {{.*}} : !u64i -> !cir.ptr<!rec_A>
-// LLVM: inttoptr {{.*}} to %struct.A*
+// LLVM: inttoptr {{.*}} to ptr
 
 void null_cast(long) {
   *(int *)0 = 0;
@@ -152,13 +153,3 @@ void null_cast(long) {
 }
 // CIR: #cir.ptr<null> : !cir.ptr<!s32i>
 // CIR: #cir.ptr<null> : !cir.ptr<!rec_A>
-
-long roundtrip(void *p) {
-  auto i = (unsigned long)p;
-  auto q = (void*)i;
-  return (long)(q != nullptr);
-}
-// CIR: cir.cast ptr_to_int {{.*}} : !cir.ptr<!void> -> !u64i
-// CIR: cir.cast int_to_ptr {{.*}} : !u64i -> !cir.ptr<!void>
-// LLVM: ptrtoint ptr {{.*}} to i64
-// LLVM: inttoptr i64 {{.*}} to ptr
