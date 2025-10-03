@@ -13769,7 +13769,8 @@ bool IntExprEvaluator::VisitBuiltinCallExpr(const CallExpr *E,
 
   auto EvalMoveMaskOp = [&]() {
     APValue Source;
-    if (!Evaluate(Source, Info, E->getArg(0))) return false;
+    if (!Evaluate(Source, Info, E->getArg(0)))
+      return false;
     unsigned SourceLen = Source.getVectorLength();
     const VectorType *VT = E->getArg(0)->getType()->castAs<VectorType>();
     const QualType ElemQT = VT->getElementType();
@@ -13782,7 +13783,7 @@ bool IntExprEvaluator::VisitBuiltinCallExpr(const CallExpr *E,
       unsigned ResultIdx = 0;
       for (unsigned I = 0; I != SourceLen; ++I) {
         APInt Lane = Source.getVectorElt(I).getInt();
-        for (unsigned J = 0; J != LaneWidth; J=J+ByteLen) {
+        for (unsigned J = 0; J != LaneWidth; J = J + ByteLen) {
           Result.setBitVal(ResultIdx++, Lane[J]);
         }
       }
@@ -13792,7 +13793,7 @@ bool IntExprEvaluator::VisitBuiltinCallExpr(const CallExpr *E,
       APInt Result(SourceLen, 0);
       for (unsigned I = 0; I != SourceLen; ++I) {
         APInt Lane = Source.getVectorElt(I).getFloat().bitcastToAPInt();
-        Result.setBitVal(I, Lane[LaneWidth-1]);
+        Result.setBitVal(I, Lane[LaneWidth - 1]);
       }
       return Success(Result, E);
     }

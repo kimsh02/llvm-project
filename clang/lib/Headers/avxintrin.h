@@ -2961,8 +2961,7 @@ _mm256_testnzc_si256(__m256i __a, __m256i __b)
 ///    floating point values with sign bits to be extracted.
 /// \returns The sign bits from the operand, written to bits [3:0].
 static __inline int __DEFAULT_FN_ATTRS_CONSTEXPR
-_mm256_movemask_pd(__m256d __a)
-{
+_mm256_movemask_pd(__m256d __a) {
   return __builtin_ia32_movmskpd256((__v4df)__a);
 }
 
@@ -2979,8 +2978,7 @@ _mm256_movemask_pd(__m256d __a)
 ///    point values with sign bits to be extracted.
 /// \returns The sign bits from the operand, written to bits [7:0].
 static __inline int __DEFAULT_FN_ATTRS_CONSTEXPR
-_mm256_movemask_ps(__m256 __a)
-{
+_mm256_movemask_ps(__m256 __a) {
   return __builtin_ia32_movmskps256((__v8sf)__a);
 }
 
