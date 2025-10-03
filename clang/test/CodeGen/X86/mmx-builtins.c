@@ -402,6 +402,7 @@ int test_mm_movemask_pi8(__m64 a) {
   return _mm_movemask_pi8(a);
 }
 
+
 __m64 test_mm_mul_su32(__m64 a, __m64 b) {
   // CHECK-LABEL: test_mm_mul_su32
   // CHECK: and <2 x i64> {{%.*}}, splat (i64 4294967295)

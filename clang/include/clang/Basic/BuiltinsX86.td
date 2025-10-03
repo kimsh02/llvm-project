@@ -181,7 +181,7 @@ let Features = "sse", Attributes = [NoThrow, Const, RequiredVectorWidth<128>] in
   def cvttss2si : X86Builtin<"int(_Vector<4, float>)">;
 }
 
-let Features = "sse", Attributes = [NoThrow, RequiredVectorWidth<128>] in {
+let Features = "sse", Attributes = [NoThrow, Constexpr, RequiredVectorWidth<128>] in {
   def movmskps : X86Builtin<"int(_Vector<4, float>)">;
 }
 
@@ -207,7 +207,7 @@ let Features = "sse2", Attributes = [NoThrow, RequiredVectorWidth<128>] in {
   def maskmovdqu : X86Builtin<"void(_Vector<16, char>, _Vector<16, char>, char *)">;
 }
 
-let Features = "sse2", Attributes = [NoThrow, Const, RequiredVectorWidth<128>] in {
+let Features = "sse2", Attributes = [NoThrow, Constexpr, RequiredVectorWidth<128>] in {
   def movmskpd : X86Builtin<"int(_Vector<2, double>)">;
   def pmovmskb128 : X86Builtin<"int(_Vector<16, char>)">;
 }
@@ -526,6 +526,11 @@ let Features = "avx", Attributes = [NoThrow, Const, RequiredVectorWidth<128>] in
   def vtestnzcps : X86Builtin<"int(_Vector<4, float>, _Vector<4, float>)">;
 }
 
+let Features = "avx", Attributes = [NoThrow, Constexpr, RequiredVectorWidth<256>] in {
+  def movmskpd256 : X86Builtin<"int(_Vector<4, double>)">;
+  def movmskps256 : X86Builtin<"int(_Vector<8, float>)">;
+}
+
 let Features = "avx", Attributes = [NoThrow, Const, RequiredVectorWidth<256>] in {
   def vtestzpd256 : X86Builtin<"int(_Vector<4, double>, _Vector<4, double>)">;
   def vtestcpd256 : X86Builtin<"int(_Vector<4, double>, _Vector<4, double>)">;
@@ -536,8 +541,6 @@ let Features = "avx", Attributes = [NoThrow, Const, RequiredVectorWidth<256>] in
   def ptestz256 : X86Builtin<"int(_Vector<4, long long int>, _Vector<4, long long int>)">;
   def ptestc256 : X86Builtin<"int(_Vector<4, long long int>, _Vector<4, long long int>)">;
   def ptestnzc256 : X86Builtin<"int(_Vector<4, long long int>, _Vector<4, long long int>)">;
-  def movmskpd256 : X86Builtin<"int(_Vector<4, double>)">;
-  def movmskps256 : X86Builtin<"int(_Vector<8, float>)">;
 }
 
 let Features = "avx", Attributes = [NoThrow] in {
@@ -572,6 +575,10 @@ let Features = "avx", Attributes = [NoThrow, Const, Constexpr, RequiredVectorWid
   def vec_set_v8si : X86Builtin<"_Vector<8, int>(_Vector<8, int>, int, _Constant int)">;
 }
 
+let Features = "avx2", Attributes = [NoThrow, Constexpr, RequiredVectorWidth<256>] in {
+  def pmovmskb256 : X86Builtin<"int(_Vector<32, char>)">;
+}
+
 let Features = "avx2", Attributes = [NoThrow, Const, RequiredVectorWidth<256>] in {
   def mpsadbw256 : X86Builtin<"_Vector<32, char>(_Vector<32, char>, _Vector<32, char>, _Constant char)">;
   def palignr256 : X86Builtin<"_Vector<32, char>(_Vector<32, char>, _Vector<32, char>, _Constant int)">;
@@ -583,7 +590,6 @@ let Features = "avx2", Attributes = [NoThrow, Const, RequiredVectorWidth<256>] i
   def phsubsw256 : X86Builtin<"_Vector<16, short>(_Vector<16, short>, _Vector<16, short>)">;
   def pmaddubsw256 : X86Builtin<"_Vector<16, short>(_Vector<32, char>, _Vector<32, char>)">;
   def pmaddwd256 : X86Builtin<"_Vector<8, int>(_Vector<16, short>, _Vector<16, short>)">;
-  def pmovmskb256 : X86Builtin<"int(_Vector<32, char>)">;
   def pmulhrsw256 : X86Builtin<"_Vector<16, short>(_Vector<16, short>, _Vector<16, short>)">;
   def psadbw256 : X86Builtin<"_Vector<4, long long int>(_Vector<32, char>, _Vector<32, char>)">;
   def pshufb256 : X86Builtin<"_Vector<32, char>(_Vector<32, char>, _Vector<32, char>)">;

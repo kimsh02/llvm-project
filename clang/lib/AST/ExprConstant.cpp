@@ -13767,6 +13767,38 @@ static bool getBuiltinAlignArguments(const CallExpr *E, EvalInfo &Info,
 bool IntExprEvaluator::VisitBuiltinCallExpr(const CallExpr *E,
                                             unsigned BuiltinOp) {
 
+  auto EvalMoveMaskOp = [&]() {
+    APValue Source;
+    if (!Evaluate(Source, Info, E->getArg(0))) return false;
+    unsigned SourceLen = Source.getVectorLength();
+    const VectorType *VT = E->getArg(0)->getType()->castAs<VectorType>();
+    const QualType ElemQT = VT->getElementType();
+    unsigned LaneWidth = Info.Ctx.getTypeSize(ElemQT);
+
+    if (ElemQT->isIntegerType()) { // Get MSB of each byte of every lane
+      unsigned ByteLen = 8;
+      unsigned ResultLen = (LaneWidth * SourceLen) / ByteLen;
+      APInt Result(ResultLen, 0);
+      unsigned ResultIdx = 0;
+      for (unsigned I = 0; I != SourceLen; ++I) {
+        APInt Lane = Source.getVectorElt(I).getInt();
+        for (unsigned J = 0; J != LaneWidth; J=J+ByteLen) {
+          Result.setBitVal(ResultIdx++, Lane[J]);
+        }
+      }
+      return Success(Result, E);
+    }
+    if (ElemQT->isFloatingType()) { // Get sign bit of every lane
+      APInt Result(SourceLen, 0);
+      for (unsigned I = 0; I != SourceLen; ++I) {
+        APInt Lane = Source.getVectorElt(I).getFloat().bitcastToAPInt();
+        Result.setBitVal(I, Lane[LaneWidth-1]);
+      }
+      return Success(Result, E);
+    }
+    return false;
+  };
+
   auto HandleMaskBinOp =
       [&](llvm::function_ref<APSInt(const APSInt &, const APSInt &)> Fn)
       -> bool {
@@ -14793,6 +14825,15 @@ bool IntExprEvaluator::VisitBuiltinCallExpr(const CallExpr *E,
     if (!handleAssignment(Info, E, ResultLValue, ResultType, APV))
       return false;
     return Success(CarryOut, E);
+  }
+
+  case clang::X86::BI__builtin_ia32_movmskps:
+  case clang::X86::BI__builtin_ia32_movmskpd:
+  case clang::X86::BI__builtin_ia32_pmovmskb128:
+  case clang::X86::BI__builtin_ia32_pmovmskb256:
+  case clang::X86::BI__builtin_ia32_movmskps256:
+  case clang::X86::BI__builtin_ia32_movmskpd256: {
+    return EvalMoveMaskOp();
   }
 
   case clang::X86::BI__builtin_ia32_bextr_u32:
